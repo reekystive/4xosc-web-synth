@@ -4,5 +4,8 @@
     "vercel",
     "webaudio",
     "Worklet"
-  ]
+  ],
+  "files.associations": {
+    "*.css": "tailwindcss"
+  }
 }
