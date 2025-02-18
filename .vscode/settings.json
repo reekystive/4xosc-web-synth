@@ -1,11 +1,7 @@
 {
-  "cSpell.words": [
-    "ADSR",
-    "vercel",
-    "webaudio",
-    "Worklet"
-  ],
+  "cSpell.words": ["ADSR", "vercel", "webaudio", "Worklet"],
   "files.associations": {
     "*.css": "tailwindcss"
-  }
+  },
+  "prettier.printWidth": 120
 }

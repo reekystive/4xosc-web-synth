@@ -15,11 +15,7 @@ export class Voice {
   private output: GainNode;
   private modEnvelope: Envelope;
 
-  constructor(
-    context: AudioContext,
-    params: VoiceParams,
-    destination: AudioNode
-  ) {
+  constructor(context: AudioContext, params: VoiceParams, destination: AudioNode) {
     this.context = context;
 
     // Create nodes
@@ -76,13 +72,11 @@ export class Voice {
     }
 
     if (params.modulatorRatio !== undefined) {
-      this.modulator.frequency.value =
-        this.carrier.frequency.value * params.modulatorRatio;
+      this.modulator.frequency.value = this.carrier.frequency.value * params.modulatorRatio;
     }
 
     if (params.modulationIndex !== undefined) {
-      this.modulatorGain.gain.value =
-        params.modulationIndex * this.carrier.frequency.value;
+      this.modulatorGain.gain.value = params.modulationIndex * this.carrier.frequency.value;
     }
   }
 }
