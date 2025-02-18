@@ -4,8 +4,8 @@ import './globals.css';
 import { Inter } from 'next/font/google';
 
 export const metadata: Metadata = {
-  title: 'WebAudio Simple Synth',
-  description: 'A simple synthesizer built with Web Audio API',
+  title: '4xOsc Web Synth',
+  description: 'A simple subtractive synthesizer built with WebAudio API',
 };
 
 const inter = Inter({ subsets: ['latin'] });
