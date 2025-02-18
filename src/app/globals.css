@@ -6,6 +6,10 @@
   color-scheme: dark;
 }
 
+button {
+  outline: none;
+}
+
 body {
   min-height: 100vh;
   display: flex;

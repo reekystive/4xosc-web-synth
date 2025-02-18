@@ -1,63 +1,34 @@
 'use client';
 
+import { FC } from 'react';
 import { Keyboard } from '@/components/synth/keyboard';
-import { Knob } from '@/components/synth/knob';
-import { WaveformSelector } from '@/components/synth/waveform-selector';
+import { Envelope } from '@/components/synth/envelope';
+import { Oscillator } from '@/components/synth/oscillator';
 import { useAudioEngine } from '@/hooks/use-audio-engine';
 import { useSynth } from '@/hooks/use-synth';
-import { OscillatorType } from '@/types/synth';
-import { useState } from 'react';
-
+import { useSynthState, INITIAL_STATE } from '@/hooks/use-synth-state';
 import { Qwigley } from 'next/font/google';
-import { Envelope } from '@/components/synth/envelope';
 
-// If loading a variable font, you don't need to specify the font weight
 const qwigley = Qwigley({ weight: '400', subsets: ['latin'] });
 
-const OSC_TYPES: OscillatorType[] = ['sine', 'square', 'sawtooth', 'triangle'];
-
-export default function Home() {
+const Home: FC = () => {
   const { engine, isReady, resumeAudio } = useAudioEngine();
-  const { noteOn, noteOff, setOscillatorParams, setEnvelopeParams } = useSynth(engine);
-
-  // 每个振荡器的状态
-  const [osc1, setOsc1] = useState({
-    waveform: 'sine' as OscillatorType,
-    detune: 0,
-    volume: 0.5,
-  });
-  const [osc2, setOsc2] = useState({
-    waveform: 'square' as OscillatorType,
-    detune: 0,
-    volume: 0.5,
-  });
-  const [osc3, setOsc3] = useState({
-    waveform: 'sawtooth' as OscillatorType,
-    detune: 0,
-    volume: 0.5,
-  });
-  const [osc4, setOsc4] = useState({
-    waveform: 'triangle' as OscillatorType,
-    detune: 0,
-    volume: 0.5,
-  });
-
-  // ADSR 状态
-  const [adsr, setAdsr] = useState({
-    attack: 0.1,
-    decay: 0.2,
-    sustain: 0.7,
-    release: 0.5,
-  });
-
-  // 更新 ADSR 参数的处理函数
-  const handleAdsrChange = (param: 'attack' | 'decay' | 'sustain' | 'release', value: number) => {
-    setAdsr((prev) => {
-      const newAdsr = { ...prev, [param]: value };
-      setEnvelopeParams({ [param]: value });
-      return newAdsr;
-    });
-  };
+  const { noteOn, noteOff, setOscillatorParams, setAmpEnvelope, setFilterEnvelope, setFilterMode } = useSynth(
+    engine,
+    INITIAL_STATE
+  );
+  const {
+    oscillators,
+    ampEnvelope,
+    filterEnvelope,
+    filterMode,
+    cutoffFreq,
+    handleOscParamsChange,
+    handleAmpEnvelopeChange,
+    handleFilterEnvelopeChange,
+    handleFilterModeChange,
+    handleCutoffFreqChange,
+  } = useSynthState(setOscillatorParams, setAmpEnvelope, setFilterEnvelope, setFilterMode);
 
   return (
     <main className="px-4 py-4 flex flex-col justify-center items-center select-none">
@@ -70,168 +41,48 @@ export default function Home() {
         <div className="max-w-4xl flex flex-col items-center gap-8">
           <div className="flex flex-row items-center gap-8">
             <div className="grid w-fit grid-cols-2 gap-4">
-              {/* OSC 1 */}
-              <div className="space-y-4 p-4 rounded-lg px-8">
-                <h2 className="text-center">OSC 1</h2>
-                <div className="flex gap-4 justify-center">
-                  <Knob
-                    value={osc1.volume}
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    label="Volume"
-                    onChange={(value) => {
-                      setOsc1((prev) => ({ ...prev, volume: value }));
-                      setOscillatorParams(1, { volume: value });
-                    }}
-                  />
-                  <Knob
-                    value={osc1.detune}
-                    min={-1200}
-                    max={1200}
-                    step={1}
-                    label="Detune"
-                    onChange={(value) => {
-                      setOsc1((prev) => ({ ...prev, detune: value }));
-                      setOscillatorParams(1, { detune: value });
-                    }}
-                  />
-                </div>
-                <WaveformSelector
-                  value={osc1.waveform}
-                  onChange={(waveform) => {
-                    setOsc1((prev) => ({ ...prev, waveform }));
-                    setOscillatorParams(1, { waveform });
-                  }}
+              {([1, 2, 3, 4] as const).map((number) => (
+                <Oscillator
+                  key={number}
+                  number={number}
+                  params={oscillators[`osc${number}` as keyof typeof oscillators]}
+                  onParamsChange={(params) => handleOscParamsChange(number, params)}
                 />
-              </div>
-
-              {/* OSC 2 */}
-              <div className="space-y-4 p-4 rounded-lg px-8">
-                <h2 className="text-center">OSC 2</h2>
-                <div className="flex gap-4 justify-center">
-                  <Knob
-                    value={osc2.volume}
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    label="Volume"
-                    onChange={(value) => {
-                      setOsc2((prev) => ({ ...prev, volume: value }));
-                      setOscillatorParams(2, { volume: value });
-                    }}
-                  />
-                  <Knob
-                    value={osc2.detune}
-                    min={-1200}
-                    max={1200}
-                    step={1}
-                    label="Detune"
-                    onChange={(value) => {
-                      setOsc2((prev) => ({ ...prev, detune: value }));
-                      setOscillatorParams(2, { detune: value });
-                    }}
-                  />
-                </div>
-                <WaveformSelector
-                  value={osc2.waveform}
-                  onChange={(waveform) => {
-                    setOsc2((prev) => ({ ...prev, waveform }));
-                    setOscillatorParams(2, { waveform });
-                  }}
-                />
-              </div>
-
-              {/* OSC 3 */}
-              <div className="space-y-4 p-4 rounded-lg px-8">
-                <h2 className="text-center">OSC 3</h2>
-                <div className="flex gap-4 justify-center">
-                  <Knob
-                    value={osc3.volume}
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    label="Volume"
-                    onChange={(value) => {
-                      setOsc3((prev) => ({ ...prev, volume: value }));
-                      setOscillatorParams(3, { volume: value });
-                    }}
-                  />
-                  <Knob
-                    value={osc3.detune}
-                    min={-1200}
-                    max={1200}
-                    step={1}
-                    label="Detune"
-                    onChange={(value) => {
-                      setOsc3((prev) => ({ ...prev, detune: value }));
-                      setOscillatorParams(3, { detune: value });
-                    }}
-                  />
-                </div>
-                <WaveformSelector
-                  value={osc3.waveform}
-                  onChange={(waveform) => {
-                    setOsc3((prev) => ({ ...prev, waveform }));
-                    setOscillatorParams(3, { waveform });
-                  }}
-                />
-              </div>
-
-              {/* OSC 4 */}
-              <div className="space-y-4 p-4 rounded-lg px-8">
-                <h2 className="text-center">OSC 4</h2>
-                <div className="flex gap-4 justify-center">
-                  <Knob
-                    value={osc4.volume}
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    label="Volume"
-                    onChange={(value) => {
-                      setOsc4((prev) => ({ ...prev, volume: value }));
-                      setOscillatorParams(4, { volume: value });
-                    }}
-                  />
-                  <Knob
-                    value={osc4.detune}
-                    min={-1200}
-                    max={1200}
-                    step={1}
-                    label="Detune"
-                    onChange={(value) => {
-                      setOsc4((prev) => ({ ...prev, detune: value }));
-                      setOscillatorParams(4, { detune: value });
-                    }}
-                  />
-                </div>
-                <WaveformSelector
-                  value={osc4.waveform}
-                  onChange={(waveform) => {
-                    setOsc4((prev) => ({ ...prev, waveform }));
-                    setOscillatorParams(4, { waveform });
-                  }}
-                />
-              </div>
+              ))}
             </div>
-
-            <Envelope
-              attack={adsr.attack}
-              decay={adsr.decay}
-              sustain={adsr.sustain}
-              release={adsr.release}
-              onAttackChange={(value) => handleAdsrChange('attack', value)}
-              onDecayChange={(value) => handleAdsrChange('decay', value)}
-              onSustainChange={(value) => handleAdsrChange('sustain', value)}
-              onReleaseChange={(value) => handleAdsrChange('release', value)}
-            />
+            <div className="flex flex-col gap-4">
+              <Envelope
+                attack={ampEnvelope.attack}
+                decay={ampEnvelope.decay}
+                sustain={ampEnvelope.sustain}
+                release={ampEnvelope.release}
+                onAttackChange={(value) => handleAmpEnvelopeChange('attack', value)}
+                onDecayChange={(value) => handleAmpEnvelopeChange('decay', value)}
+                onSustainChange={(value) => handleAmpEnvelopeChange('sustain', value)}
+                onReleaseChange={(value) => handleAmpEnvelopeChange('release', value)}
+              />
+              <Envelope
+                type="filter"
+                attack={filterEnvelope.attack}
+                decay={filterEnvelope.decay}
+                sustain={filterEnvelope.sustain}
+                release={filterEnvelope.release}
+                filterMode={filterMode}
+                cutoffFreq={cutoffFreq}
+                onAttackChange={(value) => handleFilterEnvelopeChange('attack', value)}
+                onDecayChange={(value) => handleFilterEnvelopeChange('decay', value)}
+                onSustainChange={(value) => handleFilterEnvelopeChange('sustain', value)}
+                onReleaseChange={(value) => handleFilterEnvelopeChange('release', value)}
+                onFilterModeChange={handleFilterModeChange}
+                onCutoffFreqChange={handleCutoffFreqChange}
+              />
+            </div>
           </div>
-
-          <div className="w-full flex justify-center px-8">
-            <Keyboard onNoteOn={noteOn} onNoteOff={noteOff} />
-          </div>
+          <Keyboard onNoteOn={noteOn} onNoteOff={noteOff} />
         </div>
       )}
     </main>
   );
-}
+};
+
+export default Home;

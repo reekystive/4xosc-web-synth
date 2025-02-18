@@ -8,16 +8,26 @@ interface KnobProps {
   step?: number;
   label: string;
   size?: 'small' | 'medium' | 'large';
+  formatValue?: (value: number) => string;
 }
 
-export const Knob: FC<KnobProps> = ({ min, max, value, onChange, step = 1, label, size = 'medium' }) => {
+export const Knob: FC<KnobProps> = ({
+  min,
+  max,
+  value,
+  onChange,
+  step = 1,
+  label,
+  size = 'medium',
+  formatValue = (v) => Math.round(v * 100) / 100 + '',
+}) => {
   const knobRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
   const lastY = useRef(0);
 
+  // 将外部值映射到 0-1
   const normalizedValue = (value - min) / (max - min);
   const rotation = normalizedValue * 270 - 135; // -135 到 135 度的旋转范围
-  const displayValue = Math.round(value * 10) / 10;
 
   const sizeClasses = {
     small: {
@@ -42,82 +52,78 @@ export const Knob: FC<KnobProps> = ({ min, max, value, onChange, step = 1, label
 
   const currentSize = sizeClasses[size];
 
-  const handleMouseDown = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    isDragging.current = true;
-    lastY.current = 'touches' in e ? e.touches[0].clientY : e.clientY;
-  }, []);
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      if (!knobRef.current?.contains(e.target as Node)) return;
+      e.preventDefault();
 
-  const handleMouseMove = useCallback(
-    (e: MouseEvent | TouchEvent) => {
+      const isTouchpad = e.deltaMode === 0;
+      const deltaPercent = isTouchpad
+        ? (e.deltaY / 100) * 0.3 // 触控板：100 像素对应 30% 变化
+        : e.deltaY > 0
+          ? -0.01 // 鼠标滚轮：固定 1% 变化
+          : 0.01;
+
+      const newNormalizedValue = Math.min(1, Math.max(0, normalizedValue + deltaPercent));
+      // 映射回实际值域
+      onChange(min + (max - min) * newNormalizedValue);
+    };
+
+    const handleMouseDown = (e: MouseEvent) => {
+      if (!knobRef.current?.contains(e.target as Node)) return;
+      isDragging.current = true;
+      lastY.current = e.clientY;
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (!knobRef.current?.contains(e.target as Node)) return;
+      isDragging.current = true;
+      lastY.current = e.touches[0].clientY;
+    };
+
+    const handleMouseMove = (e: MouseEvent | TouchEvent) => {
       if (!isDragging.current) return;
 
       const clientY = 'touches' in e ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
       const deltaY = lastY.current - clientY;
       lastY.current = clientY;
 
-      // 计算值的范围
-      const range = max - min;
-      // 将移动距离转换为范围的百分比变化，100像素对应30%的变化（提高三倍）
-      const deltaPercent = (deltaY / 100) * (range * 0.3);
-      const newValue = Math.min(max, Math.max(min, value + deltaPercent));
-      onChange(newValue);
-    },
-    [min, max, value, onChange]
-  );
+      // 将移动距离转换为 0-1 范围的变化，100像素对应30%的变化
+      const deltaPercent = (deltaY / 100) * 0.3;
+      const newNormalizedValue = Math.min(1, Math.max(0, normalizedValue + deltaPercent));
+      // 映射回实际值域
+      onChange(min + (max - min) * newNormalizedValue);
+    };
 
-  const handleMouseUp = useCallback(() => {
-    isDragging.current = false;
-  }, []);
-
-  useEffect(() => {
-    const handleWheel = (e: WheelEvent) => {
-      e.preventDefault();
-
-      const isTouchpad = e.deltaMode === 0;
-      const range = max - min;
-
-      if (isTouchpad) {
-        // 触控板：根据实际滑动距离计算变化
-        // deltaY 通常是像素单位，我们将其转换为值的变化
-        // 100像素对应范围的30%变化（与鼠标拖动保持一致）
-        const deltaPercent = -1 * (e.deltaY / 100) * (range * 0.3);
-        onChange(Math.min(max, Math.max(min, value - deltaPercent)));
-      } else {
-        // 鼠标滚轮：保持固定的变化量
-        const percentChange = range * 0.01;
-        const delta = e.deltaY > 0 ? -percentChange : percentChange;
-        onChange(Math.min(max, Math.max(min, value + delta)));
-      }
+    const handleMouseUp = () => {
+      isDragging.current = false;
     };
 
     const currentKnob = knobRef.current;
     if (currentKnob) {
-      currentKnob.addEventListener('wheel', handleWheel, { passive: false });
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      document.addEventListener('touchmove', handleMouseMove);
-      document.addEventListener('touchend', handleMouseUp);
+      window.addEventListener('wheel', handleWheel, { passive: false });
+      window.addEventListener('mousedown', handleMouseDown);
+      window.addEventListener('touchstart', handleTouchStart, { passive: false });
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('touchmove', handleMouseMove, { passive: false });
+      window.addEventListener('touchend', handleMouseUp);
     }
 
     return () => {
-      if (currentKnob) {
-        currentKnob.removeEventListener('wheel', handleWheel);
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-        document.removeEventListener('touchmove', handleMouseMove);
-        document.removeEventListener('touchend', handleMouseUp);
-      }
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('touchmove', handleMouseMove);
+      window.removeEventListener('touchend', handleMouseUp);
     };
-  }, [handleMouseMove, handleMouseUp, min, max, value, onChange]);
+  }, [min, max, value, onChange, normalizedValue]);
 
   return (
     <div className={`flex flex-col items-center select-none ${currentSize.container}`}>
-      <div
-        ref={knobRef}
-        className="relative w-full aspect-square rounded-full bg-gray-800 cursor-pointer"
-        onMouseDown={handleMouseDown}
-        onTouchStart={handleMouseDown}
-      >
+      <div ref={knobRef} className="relative w-full aspect-square rounded-full bg-gray-800 cursor-pointer">
         {/* 旋钮背景 */}
         <div className="absolute inset-0 rounded-full border-4 border-gray-700" />
 
@@ -133,7 +139,7 @@ export const Knob: FC<KnobProps> = ({ min, max, value, onChange, step = 1, label
 
         {/* 数值显示 */}
         <div className={`absolute inset-0 flex items-center justify-center text-white font-mono ${currentSize.text}`}>
-          {displayValue}
+          {formatValue(value)}
         </div>
       </div>
 

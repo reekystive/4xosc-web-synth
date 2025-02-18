@@ -3,7 +3,9 @@ export class AudioEngine {
   private masterGain: GainNode;
 
   constructor() {
-    this.context = new AudioContext();
+    this.context = new globalThis.AudioContext({
+      latencyHint: 'interactive',
+    });
     this.masterGain = this.context.createGain();
     this.masterGain.connect(this.context.destination);
   }

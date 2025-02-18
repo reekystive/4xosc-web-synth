@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { AudioEngine } from '@/audio/context/audio-engine';
 
-export function useAudioEngine() {
-  const engineRef = useRef<AudioEngine | undefined>(undefined);
+export const useAudioEngine = () => {
+  const engineRef = useRef<AudioEngine | null>(null);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
@@ -22,4 +22,4 @@ export function useAudioEngine() {
     isReady,
     resumeAudio,
   };
-}
+};

@@ -220,10 +220,10 @@ export const Keyboard: FC<KeyboardProps> = ({ onNoteOn, onNoteOff }) => {
     const pressedKeys = new Set<string>();
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      console.log('keydown: %o', e);
-      if (e.metaKey || e.altKey || e.shiftKey) {
+      if (e.metaKey || e.altKey || e.shiftKey || e.repeat) {
         return;
       }
+      console.log('keydown: %o', e);
       const code = e.code;
       const midiNote = keyMap.get(code);
 

@@ -36,15 +36,15 @@ export const EnvelopeVisualizer: FC<EnvelopeVisualizerProps> = ({ attack, decay,
   // 生成更自然的贝塞尔曲线路径
   const path = `
     M ${startPoint}
-    C ${timeToX(attack * 0.2)},${height - padding} 
-      ${timeToX(attack * 0.8)},${padding + 50} 
+    C ${timeToX(attack * 0.45)},${height - padding} 
+      ${timeToX(attack * 0.55)},${height - padding} 
       ${attackPoint}
-    C ${timeToX(attack + decay * 0.2)},${padding} 
-      ${timeToX(attack + decay * 0.8)},${decayPoint.split(',')[1]} 
+    C ${timeToX(attack + decay * 0.45)},${padding + 5} 
+      ${timeToX(attack + decay * 0.55)},${padding + (1 - sustain) * curveHeight} 
       ${decayPoint}
     L ${sustainEnd}
-    C ${Number(sustainEnd.split(',')[0]) + 50},${sustainEnd.split(',')[1]} 
-      ${Number(releasePoint.split(',')[0]) - 100},${Number(sustainEnd.split(',')[1]) + 50} 
+    C ${Number(sustainEnd.split(',')[0]) + timeToX(release * 0.45)},${sustainEnd.split(',')[1]} 
+      ${Number(sustainEnd.split(',')[0]) + timeToX(release * 0.55)},${height - padding} 
       ${releasePoint}
   `;
 
