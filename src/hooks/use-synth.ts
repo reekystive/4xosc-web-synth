@@ -52,9 +52,17 @@ export function useSynth(engine: AudioEngine | undefined) {
     []
   );
 
+  const setEnvelopeParams = useCallback(
+    (params: { attack?: number; decay?: number; sustain?: number; release?: number }) => {
+      synthRef.current?.setEnvelopeParams(params);
+    },
+    []
+  );
+
   return {
     noteOn: handleNoteOn,
     noteOff: handleNoteOff,
     setOscillatorParams,
+    setEnvelopeParams,
   };
 }

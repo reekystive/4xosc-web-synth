@@ -7,9 +7,10 @@ interface KnobProps {
   onChange: (value: number) => void;
   step?: number;
   label: string;
+  size?: 'small' | 'medium' | 'large';
 }
 
-export const Knob: FC<KnobProps> = ({ min, max, value, onChange, step = 1, label }) => {
+export const Knob: FC<KnobProps> = ({ min, max, value, onChange, step = 1, label, size = 'medium' }) => {
   const knobRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
   const lastY = useRef(0);
@@ -17,6 +18,29 @@ export const Knob: FC<KnobProps> = ({ min, max, value, onChange, step = 1, label
   const normalizedValue = (value - min) / (max - min);
   const rotation = normalizedValue * 270 - 135; // -135 到 135 度的旋转范围
   const displayValue = Math.round(value * 10) / 10;
+
+  const sizeClasses = {
+    small: {
+      container: 'w-16',
+      indicator: 'pt-[4px] pb-[16px]',
+      text: 'text-[10px]',
+      label: 'text-[10px]',
+    },
+    medium: {
+      container: 'w-20',
+      indicator: 'pt-[6px] pb-[20px]',
+      text: 'text-xs',
+      label: 'text-xs',
+    },
+    large: {
+      container: 'w-24',
+      indicator: 'pt-[8px] pb-[24px]',
+      text: 'text-sm',
+      label: 'text-sm',
+    },
+  };
+
+  const currentSize = sizeClasses[size];
 
   const handleMouseDown = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     isDragging.current = true;
@@ -87,7 +111,7 @@ export const Knob: FC<KnobProps> = ({ min, max, value, onChange, step = 1, label
   }, [handleMouseMove, handleMouseUp, min, max, value, onChange]);
 
   return (
-    <div className="flex flex-col items-center w-20 select-none">
+    <div className={`flex flex-col items-center select-none ${currentSize.container}`}>
       <div
         ref={knobRef}
         className="relative w-full aspect-square rounded-full bg-gray-800 cursor-pointer"
@@ -99,7 +123,7 @@ export const Knob: FC<KnobProps> = ({ min, max, value, onChange, step = 1, label
 
         {/* 旋钮指示器 */}
         <div
-          className="absolute bottom-1/2 left-1/2 w-1 pt-[6px] pb-[20px] h-[45%] origin-bottom"
+          className={`absolute bottom-1/2 left-1/2 w-1 h-[45%] origin-bottom ${currentSize.indicator}`}
           style={{
             transform: `translate(-50%, 0) rotate(${rotation}deg)`,
           }}
@@ -108,12 +132,12 @@ export const Knob: FC<KnobProps> = ({ min, max, value, onChange, step = 1, label
         </div>
 
         {/* 数值显示 */}
-        <div className="absolute inset-0 flex items-center justify-center text-white font-mono text-xs">
+        <div className={`absolute inset-0 flex items-center justify-center text-white font-mono ${currentSize.text}`}>
           {displayValue}
         </div>
       </div>
 
-      <label className="mt-1.5 text-xs text-gray-300">{label}</label>
+      <label className={`mt-1.5 text-gray-300 ${currentSize.label}`}>{label}</label>
     </div>
   );
 };
