@@ -1,4 +1,7 @@
 import { FC, useCallback, useEffect, useRef } from 'react';
+import { Ubuntu_Mono } from 'next/font/google';
+
+const ubuntuMono = Ubuntu_Mono({ weight: '400', subsets: ['latin'] });
 
 interface KnobProps {
   min: number;
@@ -33,19 +36,19 @@ export const Knob: FC<KnobProps> = ({
     small: {
       container: 'w-16',
       indicator: 'pt-[4px] pb-[16px]',
-      text: 'text-[10px]',
+      text: 'text-[12px]',
       label: 'text-[10px]',
     },
     medium: {
       container: 'w-20',
       indicator: 'pt-[6px] pb-[20px]',
-      text: 'text-xs',
+      text: 'text-[13px]',
       label: 'text-xs',
     },
     large: {
       container: 'w-24',
       indicator: 'pt-[8px] pb-[24px]',
-      text: 'text-sm',
+      text: 'text-[16px]',
       label: 'text-sm',
     },
   };
@@ -138,7 +141,9 @@ export const Knob: FC<KnobProps> = ({
         </div>
 
         {/* 数值显示 */}
-        <div className={`absolute inset-0 flex items-center justify-center text-white font-mono ${currentSize.text}`}>
+        <div
+          className={`absolute inset-0 flex items-center justify-center text-white ${ubuntuMono.className} ${currentSize.text}`}
+        >
           {formatValue(value)}
         </div>
       </div>

@@ -27,8 +27,8 @@ export const Oscillator: FC<OscillatorProps> = ({ number, params, onParamsChange
           min={0}
           max={1}
           step={0.01}
-          label="Volume"
-          formatValue={(v) => `${Math.round(v * 100)}%`}
+          label="Gain"
+          formatValue={(v) => (v === 0 ? '-INFdB' : `${Math.round(20 * Math.log10(v) * 10) / 10}dB`)}
           onChange={(value) => onParamsChange({ volume: value })}
         />
         <Knob
