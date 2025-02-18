@@ -2,6 +2,7 @@
 
 import { Keyboard } from '@/components/synth/keyboard';
 import { Knob } from '@/components/synth/knob';
+import { WaveformSelector } from '@/components/synth/waveform-selector';
 import { useAudioEngine } from '@/hooks/use-audio-engine';
 import { useSynth } from '@/hooks/use-synth';
 import { OscillatorType } from '@/types/synth';
@@ -77,21 +78,13 @@ export default function Home() {
                   }}
                 />
               </div>
-              <select
-                className="w-full bg-gray-800 text-white p-2 rounded"
+              <WaveformSelector
                 value={osc1.waveform}
-                onChange={(e) => {
-                  const waveform = e.target.value as OscillatorType;
+                onChange={(waveform) => {
                   setOsc1((prev) => ({ ...prev, waveform }));
                   setOscillatorParams(1, { waveform });
                 }}
-              >
-                {OSC_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
             {/* OSC 2 */}
@@ -121,21 +114,13 @@ export default function Home() {
                   }}
                 />
               </div>
-              <select
-                className="w-full bg-gray-800 text-white p-2 rounded"
+              <WaveformSelector
                 value={osc2.waveform}
-                onChange={(e) => {
-                  const waveform = e.target.value as OscillatorType;
+                onChange={(waveform) => {
                   setOsc2((prev) => ({ ...prev, waveform }));
                   setOscillatorParams(2, { waveform });
                 }}
-              >
-                {OSC_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
             {/* OSC 3 */}
@@ -165,21 +150,13 @@ export default function Home() {
                   }}
                 />
               </div>
-              <select
-                className="w-full bg-gray-800 text-white p-2 rounded"
+              <WaveformSelector
                 value={osc3.waveform}
-                onChange={(e) => {
-                  const waveform = e.target.value as OscillatorType;
+                onChange={(waveform) => {
                   setOsc3((prev) => ({ ...prev, waveform }));
                   setOscillatorParams(3, { waveform });
                 }}
-              >
-                {OSC_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
             {/* OSC 4 */}
@@ -209,21 +186,13 @@ export default function Home() {
                   }}
                 />
               </div>
-              <select
-                className="w-full bg-gray-800 text-white p-2 rounded"
+              <WaveformSelector
                 value={osc4.waveform}
-                onChange={(e) => {
-                  const waveform = e.target.value as OscillatorType;
+                onChange={(waveform) => {
                   setOsc4((prev) => ({ ...prev, waveform }));
                   setOscillatorParams(4, { waveform });
                 }}
-              >
-                {OSC_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
           </div>
 
