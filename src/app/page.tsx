@@ -8,10 +8,10 @@ import { useSynth } from '@/hooks/use-synth';
 import { OscillatorType } from '@/types/synth';
 import { useState } from 'react';
 
-import { Pattaya } from 'next/font/google';
+import { Qwigley } from 'next/font/google';
 
 // If loading a variable font, you don't need to specify the font weight
-const pattaya = Pattaya({ weight: '400', subsets: ['latin'] });
+const qwigley = Qwigley({ weight: '400', subsets: ['latin'] });
 
 const OSC_TYPES: OscillatorType[] = ['sine', 'square', 'sawtooth', 'triangle'];
 
@@ -42,18 +42,18 @@ export default function Home() {
   });
 
   return (
-    <main className={`min-h-screen p-8 w-full select-none`}>
-      <h1 className={`text-4xl font-bold mb-8 text-center ${pattaya.className}`}>4xOsc Web Synth</h1>
+    <main className="px-4 py-4 flex flex-col justify-center items-center select-none">
+      <h1 className={`text-6xl font-bold mb-8 text-center opacity-90 ${qwigley.className}`}>4xOsc Web Synth</h1>
       {!isReady ? (
         <button className="px-4 py-2 bg-blue-500 text-white rounded block mx-auto" onClick={resumeAudio}>
           Start Audio
         </button>
       ) : (
-        <div className="max-w-4xl mx-auto space-y-8">
-          <div className="grid grid-cols-2 gap-8">
+        <div className="max-w-4xl flex flex-col items-center gap-8">
+          <div className="grid w-fit grid-cols-2 gap-4">
             {/* OSC 1 */}
-            <div className="space-y-4 p-4 bg-gray-900 rounded-lg">
-              <h2 className="text-center font-bold">OSC 1</h2>
+            <div className="space-y-4 p-4 rounded-lg px-8">
+              <h2 className="text-center">OSC 1</h2>
               <div className="flex gap-4 justify-center">
                 <Knob
                   value={osc1.volume}
@@ -88,8 +88,8 @@ export default function Home() {
             </div>
 
             {/* OSC 2 */}
-            <div className="space-y-4 p-4 bg-gray-900 rounded-lg">
-              <h2 className="text-center font-bold">OSC 2</h2>
+            <div className="space-y-4 p-4 rounded-lg px-8">
+              <h2 className="text-center">OSC 2</h2>
               <div className="flex gap-4 justify-center">
                 <Knob
                   value={osc2.volume}
@@ -124,8 +124,8 @@ export default function Home() {
             </div>
 
             {/* OSC 3 */}
-            <div className="space-y-4 p-4 bg-gray-900 rounded-lg">
-              <h2 className="text-center font-bold">OSC 3</h2>
+            <div className="space-y-4 p-4 rounded-lg px-8">
+              <h2 className="text-center">OSC 3</h2>
               <div className="flex gap-4 justify-center">
                 <Knob
                   value={osc3.volume}
@@ -160,8 +160,8 @@ export default function Home() {
             </div>
 
             {/* OSC 4 */}
-            <div className="space-y-4 p-4 bg-gray-900 rounded-lg">
-              <h2 className="text-center font-bold">OSC 4</h2>
+            <div className="space-y-4 p-4 rounded-lg px-8">
+              <h2 className="text-center">OSC 4</h2>
               <div className="flex gap-4 justify-center">
                 <Knob
                   value={osc4.volume}

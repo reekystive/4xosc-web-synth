@@ -5,3 +5,11 @@
 :root {
   color-scheme: dark;
 }
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: safe center;
+  align-items: safe center;
+}
