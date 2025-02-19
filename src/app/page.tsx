@@ -7,12 +7,15 @@ import { Oscillator } from '@/components/synth/oscillator';
 import { useAudioEngine } from '@/hooks/use-audio-engine';
 import { useSynth } from '@/hooks/use-synth';
 import { useSynthState, INITIAL_STATE } from '@/hooks/use-synth-state';
+import { usePreventScroll } from '@/hooks/use-prevent-scroll';
 import { Qwigley } from 'next/font/google';
+import { createPortal } from 'react-dom';
 
 const qwigley = Qwigley({ weight: '400', subsets: ['latin'] });
 
 const Home: FC = () => {
   const { engine, isReady, resumeAudio } = useAudioEngine();
+  usePreventScroll(!isReady);
   const { noteOn, noteOff, setOscillatorParams, setAmpEnvelope, setFilterEnvelope, setFilterMode } = useSynth(
     engine,
     INITIAL_STATE
@@ -32,14 +35,17 @@ const Home: FC = () => {
 
   return (
     <main className="px-4 py-4 flex flex-col justify-center items-center select-none">
-      {!isReady ? (
-        <div
-          className="fixed inset-0 bg-black/30 backdrop-blur-lg flex items-center justify-center cursor-pointer z-50"
-          onClick={resumeAudio}
-        >
-          <div className="text-white text-xl">Click anywhere to start</div>
-        </div>
-      ) : null}
+      {!isReady
+        ? createPortal(
+            <div
+              className="fixed -inset-[200px] p-[200px] bg-black/30 backdrop-blur-lg flex items-center justify-center cursor-pointer z-50"
+              onClick={resumeAudio}
+            >
+              <div className="text-white text-xl">Click anywhere to start</div>
+            </div>,
+            document.body
+          )
+        : null}
       <h1 className={`text-6xl font-bold mb-8 text-center opacity-90 ${qwigley.className}`}>4xOsc Web Synth</h1>
       <div className="max-w-4xl flex flex-col items-center gap-8">
         <div className="flex flex-row items-center gap-8">

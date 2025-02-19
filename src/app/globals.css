@@ -6,7 +6,7 @@
   color-scheme: dark;
 }
 
-button {
+*:focus {
   outline: none;
 }
 
