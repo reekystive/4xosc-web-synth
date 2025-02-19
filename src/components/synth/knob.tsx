@@ -27,6 +27,7 @@ export const Knob: FC<KnobProps> = ({
   const knobRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
   const lastY = useRef(0);
+  const activeTouchId = useRef<number | null>(null);
 
   // 将外部值映射到 0-1
   const normalizedValue = (value - min) / (max - min);
@@ -80,22 +81,53 @@ export const Knob: FC<KnobProps> = ({
 
     const handleTouchStart = (e: TouchEvent) => {
       if (!knobRef.current?.contains(e.target as Node)) return;
+      e.preventDefault();
+
+      // 如果已经在追踪一个触摸点，就忽略新的触摸
+      if (isDragging.current) return;
+
+      // 使用 changedTouches 来获取新增的触摸点
+      const touch = e.changedTouches[0];
       isDragging.current = true;
-      lastY.current = e.touches[0].clientY;
+      activeTouchId.current = touch.identifier;
+      lastY.current = touch.clientY;
     };
 
-    const handleMouseMove = (e: MouseEvent | TouchEvent) => {
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isDragging.current) return;
+      e.preventDefault();
+
+      // 找到属于这个旋钮的触摸点
+      const touch = Array.from(e.touches).find((t) => t.identifier === activeTouchId.current);
+      if (!touch) return;
+
+      const deltaY = lastY.current - touch.clientY;
+      lastY.current = touch.clientY;
+
+      const deltaPercent = (deltaY / 100) * 0.3;
+      const newNormalizedValue = Math.min(1, Math.max(0, normalizedValue + deltaPercent));
+      onChange(min + (max - min) * newNormalizedValue);
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging.current) return;
 
-      const clientY = 'touches' in e ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
+      const clientY = e.clientY;
       const deltaY = lastY.current - clientY;
       lastY.current = clientY;
 
-      // 将移动距离转换为 0-1 范围的变化，100像素对应30%的变化
       const deltaPercent = (deltaY / 100) * 0.3;
       const newNormalizedValue = Math.min(1, Math.max(0, normalizedValue + deltaPercent));
-      // 映射回实际值域
       onChange(min + (max - min) * newNormalizedValue);
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      // 只有当结束的触摸点是我们正在追踪的触摸点时，才重置状态
+      const touch = Array.from(e.changedTouches).find((t) => t.identifier === activeTouchId.current);
+      if (touch) {
+        isDragging.current = false;
+        activeTouchId.current = null;
+      }
     };
 
     const handleMouseUp = () => {
@@ -104,29 +136,33 @@ export const Knob: FC<KnobProps> = ({
 
     const currentKnob = knobRef.current;
     if (currentKnob) {
-      window.addEventListener('wheel', handleWheel, { passive: false });
-      window.addEventListener('mousedown', handleMouseDown);
-      window.addEventListener('touchstart', handleTouchStart, { passive: false });
+      currentKnob.addEventListener('wheel', handleWheel, { passive: false });
+      currentKnob.addEventListener('mousedown', handleMouseDown);
+      currentKnob.addEventListener('touchstart', handleTouchStart, { passive: false });
+      currentKnob.addEventListener('touchmove', handleTouchMove, { passive: false });
+      currentKnob.addEventListener('touchend', handleTouchEnd);
+
+      // 这些事件仍然需要在 window 上监听，因为鼠标可能会移出元素
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
-      window.addEventListener('touchmove', handleMouseMove, { passive: false });
-      window.addEventListener('touchend', handleMouseUp);
     }
 
     return () => {
-      window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('mousedown', handleMouseDown);
-      window.removeEventListener('touchstart', handleTouchStart);
+      if (currentKnob) {
+        currentKnob.removeEventListener('wheel', handleWheel);
+        currentKnob.removeEventListener('mousedown', handleMouseDown);
+        currentKnob.removeEventListener('touchstart', handleTouchStart);
+        currentKnob.removeEventListener('touchmove', handleTouchMove);
+        currentKnob.removeEventListener('touchend', handleTouchEnd);
+      }
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
-      window.removeEventListener('touchmove', handleMouseMove);
-      window.removeEventListener('touchend', handleMouseUp);
     };
   }, [min, max, value, onChange, normalizedValue]);
 
   return (
     <div className={`flex flex-col items-center select-none ${currentSize.container}`}>
-      <div ref={knobRef} className="relative w-full aspect-square rounded-full bg-gray-800 cursor-pointer">
+      <div ref={knobRef} className="relative w-full aspect-square rounded-full bg-gray-800 cursor-pointer touch-none">
         {/* 旋钮背景 */}
         <div className="absolute inset-0 rounded-full border-4 border-gray-700" />
 
