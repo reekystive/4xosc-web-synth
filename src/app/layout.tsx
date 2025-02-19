@@ -3,12 +3,18 @@ import { ReactNode } from 'react';
 import './globals.css';
 import { Inter } from 'next/font/google';
 
+const inter = Inter({ subsets: ['latin'] });
+
 export const metadata: Metadata = {
   title: '4xOsc Web Synth',
-  description: 'A simple subtractive synthesizer built with WebAudio API',
+  description: 'A web-based subtractive synthesizer with 4 oscillators',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 };
-
-const inter = Inter({ subsets: ['latin'] });
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    /* 禁用触摸高亮 */
+    -webkit-tap-highlight-color: transparent;
+    /* 改善触摸体验 */
+    touch-action: manipulation;
+  }
+}
+
 :root {
   color-scheme: dark;
 }
