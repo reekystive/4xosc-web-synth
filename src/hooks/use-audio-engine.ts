@@ -3,10 +3,13 @@ import { AudioEngine } from '@/audio/context/audio-engine';
 
 export const useAudioEngine = () => {
   const engineRef = useRef<AudioEngine | null>(null);
-  const [isReady, setIsReady] = useState(false);
+  const [isReady, setIsReady] = useState(true);
 
   useEffect(() => {
     engineRef.current = new AudioEngine();
+    if (engineRef.current.audioContext.state !== 'running') {
+      setIsReady(false);
+    }
     return () => {
       engineRef.current?.suspend();
     };
