@@ -1,15 +1,21 @@
 'use client';
 
-import { FC, PropsWithChildren } from 'react';
+import { FC, PropsWithChildren, useLayoutEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { isClient } from '@/utils/env';
 
 interface ClientPortalProps extends PropsWithChildren {
   selector?: string;
 }
 
 export const ClientPortal: FC<ClientPortalProps> = ({ children, selector = 'body' }) => {
-  if (!isClient()) return null;
+  const [mounted, setMounted] = useState(false);
+
+  useLayoutEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  if (!mounted) return null;
 
   const targetElement = document.querySelector(selector);
   if (!targetElement) return null;

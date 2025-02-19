@@ -1,12 +1,10 @@
-import { useEffect } from 'react';
-import { isClient } from '@/utils/env';
+import { useLayoutEffect } from 'react';
 
 // 使用闭包来维护一个计数器
 let preventScrollCount = 0;
 
 const setBodyScroll = (shouldPrevent: boolean) => {
-  // 确保只在客户端执行
-  if (!isClient()) return;
+  if (typeof document === 'undefined') return;
 
   if (shouldPrevent) {
     preventScrollCount++;
@@ -22,7 +20,7 @@ const setBodyScroll = (shouldPrevent: boolean) => {
 };
 
 export const usePreventScroll = (shouldPrevent: boolean) => {
-  useEffect(() => {
+  useLayoutEffect(() => {
     setBodyScroll(shouldPrevent);
 
     return () => {
